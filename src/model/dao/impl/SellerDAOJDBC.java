@@ -66,15 +66,58 @@ public class SellerDAOJDBC implements SellerDAO{
 	}
 
 	@Override
-	public void update(Seller dp) {
-		// TODO Auto-generated method stub
-		
+	public void update(Seller s) {
+		PreparedStatement st = null;
+		try {
+			st = conn.prepareStatement(
+					"UPDATE seller SET Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ? "
+					+ "WHERE Id = ?", 
+					Statement.RETURN_GENERATED_KEYS);
+
+			st.setString(1, s.getName());
+			st.setString(2, s.getEmail());
+			st.setDate(3, new Date(s.getBirthDate().getTime()));
+			st.setDouble(4, s.getBaseSalary());
+			st.setInt(5, s.getDepartment().getId());
+			st.setInt(6, s.getId());
+			
+			st.executeUpdate();
+		}
+		catch(SQLException e) {
+			throw new DbException(e.getMessage());
+		}
+		finally 
+		{
+			DB.closeStatement(st);
+		}
 	}
 
 	@Override
 	public void deleteById(Integer id) {
-		// TODO Auto-generated method stub
-		
+		PreparedStatement st = null;
+		try {
+			st = conn.prepareStatement(
+					"DELETE FROM seller WHERE Id = ?");
+
+			st.setInt(1, id);
+			
+			int rows = st.executeUpdate();
+			
+			if (rows == 0) 
+			{
+				System.out.println("id "+id+" not exists.");
+				return;
+			}
+
+			System.out.println("Delete completed.");
+		}
+		catch(SQLException e) {
+			throw new DbException(e.getMessage());
+		}
+		finally 
+		{
+			DB.closeStatement(st);
+		}
 	}
 
 	@Override
